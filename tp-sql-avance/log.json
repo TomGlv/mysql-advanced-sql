@@ -1,0 +1,538 @@
+{
+ "demarrage": [
+  {
+   "cmd": "SHOW DATABASES",
+   "out": "+--------------------+\n| Database           |\n+--------------------+\n| information_schema |\n| mysql              |\n| performance_schema |\n| sys                |\n| tp2_mysql          |\n+--------------------+\n5 rows in set"
+  },
+  {
+   "cmd": "CREATE DATABASE IF NOT EXISTS entreprise_avancee",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "cmd": "USE entreprise_avancee",
+   "out": "+--------------------+\n| DATABASE()         |\n+--------------------+\n| entreprise_avancee |\n+--------------------+\n1 row in set"
+  },
+  {
+   "cmd": "SELECT DATABASE()",
+   "out": ""
+  }
+ ],
+ "tables": [
+  {
+   "cmd": "CREATE TABLE departements (\n    id INT PRIMARY KEY AUTO_INCREMENT,\n    nom VARCHAR(80) NOT NULL,\n    ville VARCHAR(50) NOT NULL\n)",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "cmd": "CREATE TABLE employes (\n    id INT PRIMARY KEY AUTO_INCREMENT,\n    nom VARCHAR(60) NOT NULL,\n    prenom VARCHAR(60) NOT NULL,\n    poste VARCHAR(80),\n    salaire DECIMAL(10,2),\n    departement_id INT NULL,\n    manager_id INT NULL,\n    date_embauche DATE,\n    FOREIGN KEY (departement_id) REFERENCES departements(id),\n    FOREIGN KEY (manager_id) REFERENCES employes(id)\n)",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "cmd": "CREATE TABLE clients (\n    id INT PRIMARY KEY AUTO_INCREMENT,\n    nom VARCHAR(100) NOT NULL,\n    ville VARCHAR(60),\n    secteur VARCHAR(60)\n)",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "cmd": "CREATE TABLE projets (\n    id INT PRIMARY KEY AUTO_INCREMENT,\n    nom VARCHAR(120) NOT NULL,\n    budget DECIMAL(12,2),\n    client_id INT NULL,\n    statut VARCHAR(30),\n    FOREIGN KEY (client_id) REFERENCES clients(id)\n)",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "cmd": "CREATE TABLE affectations (\n    employe_id INT,\n    projet_id INT,\n    heures INT,\n    role_projet VARCHAR(60),\n    PRIMARY KEY (employe_id, projet_id),\n    FOREIGN KEY (employe_id) REFERENCES employes(id),\n    FOREIGN KEY (projet_id) REFERENCES projets(id)\n)",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "cmd": "CREATE TABLE incidents (\n    id INT PRIMARY KEY AUTO_INCREMENT,\n    type_incident VARCHAR(100),\n    severite VARCHAR(20),\n    adresse_ip VARCHAR(45),\n    employe_id INT NULL,\n    projet_id INT NULL,\n    date_incident DATETIME,\n    FOREIGN KEY (employe_id) REFERENCES employes(id),\n    FOREIGN KEY (projet_id) REFERENCES projets(id)\n)",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "cmd": "SHOW TABLES",
+   "out": "+------------------------------+\n| Tables_in_entreprise_avancee |\n+------------------------------+\n| affectations                 |\n| clients                      |\n| departements                 |\n| employes                     |\n| incidents                    |\n| projets                      |\n+------------------------------+\n6 rows in set"
+  }
+ ],
+ "donnees": [
+  {
+   "cmd": "INSERT INTO departements (nom, ville) VALUES\n('Networking', 'Paris'),\n('Cybersecurity', 'Paris'),\n('Development', 'Lyon'),\n('Support', 'Lille'),\n('Data', 'Bordeaux'),\n('Innovation', 'Nantes')",
+   "out": "Query OK, 6 rows affected\nRecords: 6  Duplicates: 0  Warnings: 0"
+  },
+  {
+   "cmd": "INSERT INTO employes\n(nom, prenom, poste, salaire, departement_id, manager_id, date_embauche) VALUES\n('Martin','Paul','Network Administrator',3600,1,NULL,'2021-09-01'),\n('Durand','Sophie','Developer',3900,3,NULL,'2020-04-15'),\n('Bernard','Lucas','Technician',2850,4,1,'2024-01-10'),\n('Robert','Nadia','Cybersecurity Engineer',4700,2,NULL,'2021-06-20'),\n('Petit','Karim','Developer',3500,3,2,'2024-03-01'),\n('Garcia','Ines','SOC Analyst',4100,2,4,'2023-11-12'),\n('Moreau','Yanis','Network Engineer',4300,1,1,'2022-05-18'),\n('Roux','Lina','Data Analyst',4200,5,NULL,'2022-10-03'),\n('Faure','Adam','Consultant',3800,NULL,NULL,'2025-01-15')",
+   "out": "Query OK, 9 rows affected\nRecords: 9  Duplicates: 0  Warnings: 0"
+  },
+  {
+   "cmd": "INSERT INTO clients (nom, ville, secteur) VALUES\n('TechCorp','Paris','Industry'),\n('CyberSolutions','Lyon','Cybersecurity'),\n('DataPro','Lille','Data'),\n('FinSecure','Nantes','Finance'),\n('Medialab','Bordeaux','Healthcare'),\n('NoProjectClient','Nice','Consulting')",
+   "out": "Query OK, 6 rows affected\nRecords: 6  Duplicates: 0  Warnings: 0"
+  },
+  {
+   "cmd": "INSERT INTO projets (nom, budget, client_id, statut) VALUES\n('Network Migration',15000,1,'Completed'),\n('Cybersecurity Audit',25000,2,'In Progress'),\n('Web Application',18000,3,'In Progress'),\n('Server Security',12000,2,'Completed'),\n('SOC Deployment',32000,4,'In Progress'),\n('Data Platform',40000,5,'Planned'),\n('Internal Research',9000,NULL,'Planned')",
+   "out": "Query OK, 7 rows affected\nRecords: 7  Duplicates: 0  Warnings: 0"
+  },
+  {
+   "cmd": "INSERT INTO affectations VALUES\n(1,1,80,'Lead'),\n(7,1,100,'Network Engineer'),\n(4,2,90,'Security Lead'),\n(6,2,120,'SOC Analyst'),\n(2,3,130,'Developer'),\n(5,3,100,'Developer'),\n(4,4,70,'Security Engineer'),\n(6,5,160,'SOC Analyst'),\n(4,5,110,'Security Lead'),\n(8,6,140,'Data Analyst')",
+   "out": "Query OK, 10 rows affected\nRecords: 10  Duplicates: 0  Warnings: 0"
+  },
+  {
+   "cmd": "INSERT INTO incidents\n(type_incident,severite,adresse_ip,employe_id,projet_id,date_incident) VALUES\n('Port Scan','Low','192.168.1.20',1,1,'2026-09-20 09:15:00'),\n('SSH Brute Force','Critical','192.168.1.50',6,2,'2026-09-21 11:42:00'),\n('SQL Injection Attempt','High','10.0.0.25',2,3,'2026-09-22 14:05:00'),\n('Network Scan','Medium','192.168.1.30',7,1,'2026-09-23 16:10:00'),\n('Ransomware Alert','Critical','10.10.2.40',4,5,'2026-09-24 08:20:00'),\n('Suspicious Login','Medium','172.16.5.10',NULL,NULL,'2026-09-25 22:45:00'),\n('Malware Detected','High','10.10.4.15',8,6,'2026-09-26 13:30:00')",
+   "out": "Query OK, 7 rows affected\nRecords: 7  Duplicates: 0  Warnings: 0"
+  }
+ ],
+ "verif": [
+  {
+   "cmd": "SELECT 'departements' AS table_name, COUNT(*) AS nb FROM departements\nUNION ALL SELECT 'employes', COUNT(*) FROM employes\nUNION ALL SELECT 'clients', COUNT(*) FROM clients\nUNION ALL SELECT 'projets', COUNT(*) FROM projets\nUNION ALL SELECT 'affectations', COUNT(*) FROM affectations\nUNION ALL SELECT 'incidents', COUNT(*) FROM incidents",
+   "out": "+--------------+----+\n| table_name   | nb |\n+--------------+----+\n| departements |  6 |\n| employes     |  9 |\n| clients      |  6 |\n| projets      |  7 |\n| affectations | 10 |\n| incidents    |  7 |\n+--------------+----+\n6 rows in set"
+  }
+ ],
+ "A1": [
+  {
+   "cmd": "SELECT e.prenom, e.nom, d.nom AS departement\nFROM employes e\nINNER JOIN departements d ON e.departement_id = d.id\nORDER BY e.id",
+   "out": "+--------+---------+---------------+\n| prenom | nom     | departement   |\n+--------+---------+---------------+\n| Paul   | Martin  | Networking    |\n| Sophie | Durand  | Development   |\n| Lucas  | Bernard | Support       |\n| Nadia  | Robert  | Cybersecurity |\n| Karim  | Petit   | Development   |\n| Ines   | Garcia  | Cybersecurity |\n| Yanis  | Moreau  | Networking    |\n| Lina   | Roux    | Data          |\n+--------+---------+---------------+\n8 rows in set"
+  }
+ ],
+ "A2": [
+  {
+   "cmd": "SELECT p.nom AS projet, c.nom AS client\nFROM projets p\nINNER JOIN clients c ON p.client_id = c.id\nORDER BY p.id",
+   "out": "+---------------------+----------------+\n| projet              | client         |\n+---------------------+----------------+\n| Network Migration   | TechCorp       |\n| Cybersecurity Audit | CyberSolutions |\n| Web Application     | DataPro        |\n| Server Security     | CyberSolutions |\n| SOC Deployment      | FinSecure      |\n| Data Platform       | Medialab       |\n+---------------------+----------------+\n6 rows in set"
+  }
+ ],
+ "A3": [
+  {
+   "cmd": "SELECT CONCAT(e.prenom, ' ', e.nom) AS employe, p.nom AS projet,\n       a.role_projet, a.heures\nFROM affectations a\nINNER JOIN employes e ON a.employe_id = e.id\nINNER JOIN projets p ON a.projet_id = p.id\nORDER BY p.id, e.id",
+   "out": "+---------------+---------------------+-------------------+--------+\n| employe       | projet              | role_projet       | heures |\n+---------------+---------------------+-------------------+--------+\n| Paul Martin   | Network Migration   | Lead              |     80 |\n| Yanis Moreau  | Network Migration   | Network Engineer  |    100 |\n| Nadia Robert  | Cybersecurity Audit | Security Lead     |     90 |\n| Ines Garcia   | Cybersecurity Audit | SOC Analyst       |    120 |\n| Sophie Durand | Web Application     | Developer         |    130 |\n| Karim Petit   | Web Application     | Developer         |    100 |\n| Nadia Robert  | Server Security     | Security Engineer |     70 |\n| Nadia Robert  | SOC Deployment      | Security Lead     |    110 |\n| Ines Garcia   | SOC Deployment      | SOC Analyst       |    160 |\n| Lina Roux     | Data Platform       | Data Analyst      |    140 |\n+---------------+---------------------+-------------------+--------+\n10 rows in set"
+  }
+ ],
+ "A4": [
+  {
+   "cmd": "SELECT i.id, i.type_incident, i.severite,\n       CONCAT(e.prenom, ' ', e.nom) AS employe, p.nom AS projet\nFROM incidents i\nINNER JOIN employes e ON i.employe_id = e.id\nINNER JOIN projets p ON i.projet_id = p.id\nORDER BY i.id",
+   "out": "+----+-----------------------+----------+---------------+---------------------+\n| id | type_incident         | severite | employe       | projet              |\n+----+-----------------------+----------+---------------+---------------------+\n|  1 | Port Scan             | Low      | Paul Martin   | Network Migration   |\n|  2 | SSH Brute Force       | Critical | Ines Garcia   | Cybersecurity Audit |\n|  3 | SQL Injection Attempt | High     | Sophie Durand | Web Application     |\n|  4 | Network Scan          | Medium   | Yanis Moreau  | Network Migration   |\n|  5 | Ransomware Alert      | Critical | Nadia Robert  | SOC Deployment      |\n|  7 | Malware Detected      | High     | Lina Roux     | Data Platform       |\n+----+-----------------------+----------+---------------+---------------------+\n6 rows in set"
+  }
+ ],
+ "A5": [
+  {
+   "cmd": "SELECT CONCAT(e.prenom, ' ', e.nom) AS employe, e.poste,\n       p.nom AS projet, p.statut, a.heures\nFROM employes e\nINNER JOIN affectations a ON a.employe_id = e.id\nINNER JOIN projets p ON p.id = a.projet_id\nWHERE p.statut = 'In Progress'\nORDER BY p.nom, a.heures DESC",
+   "out": "+---------------+------------------------+---------------------+-------------+--------+\n| employe       | poste                  | projet              | statut      | heures |\n+---------------+------------------------+---------------------+-------------+--------+\n| Ines Garcia   | SOC Analyst            | Cybersecurity Audit | In Progress |    120 |\n| Nadia Robert  | Cybersecurity Engineer | Cybersecurity Audit | In Progress |     90 |\n| Ines Garcia   | SOC Analyst            | SOC Deployment      | In Progress |    160 |\n| Nadia Robert  | Cybersecurity Engineer | SOC Deployment      | In Progress |    110 |\n| Sophie Durand | Developer              | Web Application     | In Progress |    130 |\n| Karim Petit   | Developer              | Web Application     | In Progress |    100 |\n+---------------+------------------------+---------------------+-------------+--------+\n6 rows in set"
+  }
+ ],
+ "B1": [
+  {
+   "cmd": "SELECT e.prenom, e.nom, d.nom AS departement\nFROM employes e\nLEFT JOIN departements d ON e.departement_id = d.id\nORDER BY e.id",
+   "out": "+--------+---------+---------------+\n| prenom | nom     | departement   |\n+--------+---------+---------------+\n| Paul   | Martin  | Networking    |\n| Sophie | Durand  | Development   |\n| Lucas  | Bernard | Support       |\n| Nadia  | Robert  | Cybersecurity |\n| Karim  | Petit   | Development   |\n| Ines   | Garcia  | Cybersecurity |\n| Yanis  | Moreau  | Networking    |\n| Lina   | Roux    | Data          |\n| Adam   | Faure   | NULL          |\n+--------+---------+---------------+\n9 rows in set"
+  }
+ ],
+ "B2": [
+  {
+   "cmd": "SELECT e.id, e.prenom, e.nom, e.poste\nFROM employes e\nLEFT JOIN affectations a ON a.employe_id = e.id\nWHERE a.employe_id IS NULL",
+   "out": "+----+--------+---------+------------+\n| id | prenom | nom     | poste      |\n+----+--------+---------+------------+\n|  3 | Lucas  | Bernard | Technician |\n|  9 | Adam   | Faure   | Consultant |\n+----+--------+---------+------------+\n2 rows in set"
+  }
+ ],
+ "B3": [
+  {
+   "cmd": "SELECT c.nom AS client, p.nom AS projet, p.statut\nFROM clients c\nLEFT JOIN projets p ON p.client_id = c.id\nORDER BY c.id, p.id",
+   "out": "+-----------------+---------------------+-------------+\n| client          | projet              | statut      |\n+-----------------+---------------------+-------------+\n| TechCorp        | Network Migration   | Completed   |\n| CyberSolutions  | Cybersecurity Audit | In Progress |\n| CyberSolutions  | Server Security     | Completed   |\n| DataPro         | Web Application     | In Progress |\n| FinSecure       | SOC Deployment      | In Progress |\n| Medialab        | Data Platform       | Planned     |\n| NoProjectClient | NULL                | NULL        |\n+-----------------+---------------------+-------------+\n7 rows in set"
+  }
+ ],
+ "B4": [
+  {
+   "cmd": "SELECT c.id, c.nom AS client, c.ville\nFROM clients c\nLEFT JOIN projets p ON p.client_id = c.id\nWHERE p.id IS NULL",
+   "out": "+----+-----------------+-------+\n| id | client          | ville |\n+----+-----------------+-------+\n|  6 | NoProjectClient | Nice  |\n+----+-----------------+-------+\n1 row in set"
+  }
+ ],
+ "B5": [
+  {
+   "cmd": "SELECT p.nom AS projet, COUNT(a.employe_id) AS nb_employes\nFROM projets p\nLEFT JOIN affectations a ON a.projet_id = p.id\nGROUP BY p.id, p.nom\nORDER BY p.id",
+   "out": "+---------------------+-------------+\n| projet              | nb_employes |\n+---------------------+-------------+\n| Network Migration   |           2 |\n| Cybersecurity Audit |           2 |\n| Web Application     |           2 |\n| Server Security     |           1 |\n| SOC Deployment      |           2 |\n| Data Platform       |           1 |\n| Internal Research   |           0 |\n+---------------------+-------------+\n7 rows in set"
+  }
+ ],
+ "B6": [
+  {
+   "cmd": "SELECT d.nom AS departement, COUNT(e.id) AS nb_employes\nFROM departements d\nLEFT JOIN employes e ON e.departement_id = d.id\nGROUP BY d.id, d.nom\nORDER BY d.id",
+   "out": "+---------------+-------------+\n| departement   | nb_employes |\n+---------------+-------------+\n| Networking    |           2 |\n| Cybersecurity |           2 |\n| Development   |           2 |\n| Support       |           1 |\n| Data          |           1 |\n| Innovation    |           0 |\n+---------------+-------------+\n6 rows in set"
+  }
+ ],
+ "Bdefi": [
+  {
+   "cmd": "SELECT c.nom AS client, p.nom AS projet, p.statut\nFROM clients c\nLEFT JOIN projets p ON p.client_id = c.id\nWHERE p.statut = 'In Progress'\nORDER BY c.id",
+   "out": "+----------------+---------------------+-------------+\n| client         | projet              | statut      |\n+----------------+---------------------+-------------+\n| CyberSolutions | Cybersecurity Audit | In Progress |\n| DataPro        | Web Application     | In Progress |\n| FinSecure      | SOC Deployment      | In Progress |\n+----------------+---------------------+-------------+\n3 rows in set"
+  },
+  {
+   "cmd": "SELECT c.nom AS client, p.nom AS projet, p.statut\nFROM clients c\nLEFT JOIN projets p ON p.client_id = c.id AND p.statut = 'In Progress'\nORDER BY c.id",
+   "out": "+-----------------+---------------------+-------------+\n| client          | projet              | statut      |\n+-----------------+---------------------+-------------+\n| TechCorp        | NULL                | NULL        |\n| CyberSolutions  | Cybersecurity Audit | In Progress |\n| DataPro         | Web Application     | In Progress |\n| FinSecure       | SOC Deployment      | In Progress |\n| Medialab        | NULL                | NULL        |\n| NoProjectClient | NULL                | NULL        |\n+-----------------+---------------------+-------------+\n6 rows in set"
+  }
+ ],
+ "C1": [
+  {
+   "cmd": "SELECT c.nom AS client, p.nom AS projet, p.statut\nFROM projets p\nRIGHT JOIN clients c ON p.client_id = c.id\nORDER BY c.id, p.id",
+   "out": "+-----------------+---------------------+-------------+\n| client          | projet              | statut      |\n+-----------------+---------------------+-------------+\n| TechCorp        | Network Migration   | Completed   |\n| CyberSolutions  | Cybersecurity Audit | In Progress |\n| CyberSolutions  | Server Security     | Completed   |\n| DataPro         | Web Application     | In Progress |\n| FinSecure       | SOC Deployment      | In Progress |\n| Medialab        | Data Platform       | Planned     |\n| NoProjectClient | NULL                | NULL        |\n+-----------------+---------------------+-------------+\n7 rows in set"
+  }
+ ],
+ "C2": [
+  {
+   "cmd": "SELECT d.nom AS departement, e.prenom, e.nom\nFROM employes e\nRIGHT JOIN departements d ON e.departement_id = d.id\nORDER BY d.id, e.id",
+   "out": "+---------------+--------+---------+\n| departement   | prenom | nom     |\n+---------------+--------+---------+\n| Networking    | Paul   | Martin  |\n| Networking    | Yanis  | Moreau  |\n| Cybersecurity | Nadia  | Robert  |\n| Cybersecurity | Ines   | Garcia  |\n| Development   | Sophie | Durand  |\n| Development   | Karim  | Petit   |\n| Support       | Lucas  | Bernard |\n| Data          | Lina   | Roux    |\n| Innovation    | NULL   | NULL    |\n+---------------+--------+---------+\n9 rows in set"
+  }
+ ],
+ "C3": [
+  {
+   "cmd": "SELECT d.nom AS departement, e.prenom, e.nom\nFROM departements d\nLEFT JOIN employes e ON e.departement_id = d.id\nORDER BY d.id, e.id",
+   "out": "+---------------+--------+---------+\n| departement   | prenom | nom     |\n+---------------+--------+---------+\n| Networking    | Paul   | Martin  |\n| Networking    | Yanis  | Moreau  |\n| Cybersecurity | Nadia  | Robert  |\n| Cybersecurity | Ines   | Garcia  |\n| Development   | Sophie | Durand  |\n| Development   | Karim  | Petit   |\n| Support       | Lucas  | Bernard |\n| Data          | Lina   | Roux    |\n| Innovation    | NULL   | NULL    |\n+---------------+--------+---------+\n9 rows in set"
+  }
+ ],
+ "D1": [
+  {
+   "cmd": "SELECT c.id AS client_id, c.nom AS client, p.id AS projet_id, p.nom AS projet\nFROM clients c\nLEFT JOIN projets p ON p.client_id = c.id\nUNION\nSELECT c.id, c.nom, p.id, p.nom\nFROM clients c\nRIGHT JOIN projets p ON p.client_id = c.id",
+   "out": "+-----------+-----------------+-----------+---------------------+\n| client_id | client          | projet_id | projet              |\n+-----------+-----------------+-----------+---------------------+\n|         1 | TechCorp        |         1 | Network Migration   |\n|         2 | CyberSolutions  |         2 | Cybersecurity Audit |\n|         2 | CyberSolutions  |         4 | Server Security     |\n|         3 | DataPro         |         3 | Web Application     |\n|         4 | FinSecure       |         5 | SOC Deployment      |\n|         5 | Medialab        |         6 | Data Platform       |\n|         6 | NoProjectClient |      NULL | NULL                |\n|      NULL | NULL            |         7 | Internal Research   |\n+-----------+-----------------+-----------+---------------------+\n8 rows in set"
+  }
+ ],
+ "D2": [
+  {
+   "cmd": "SELECT fj.client_id, fj.client, fj.projet\nFROM (\n    SELECT c.id AS client_id, c.nom AS client, p.id AS projet_id, p.nom AS projet\n    FROM clients c\n    LEFT JOIN projets p ON p.client_id = c.id\n    UNION\n    SELECT c.id, c.nom, p.id, p.nom\n    FROM clients c\n    RIGHT JOIN projets p ON p.client_id = c.id\n) AS fj\nWHERE fj.projet_id IS NULL",
+   "out": "+-----------+-----------------+--------+\n| client_id | client          | projet |\n+-----------+-----------------+--------+\n|         6 | NoProjectClient | NULL   |\n+-----------+-----------------+--------+\n1 row in set"
+  }
+ ],
+ "D3": [
+  {
+   "cmd": "SELECT fj.client, fj.projet_id, fj.projet\nFROM (\n    SELECT c.id AS client_id, c.nom AS client, p.id AS projet_id, p.nom AS projet\n    FROM clients c\n    LEFT JOIN projets p ON p.client_id = c.id\n    UNION\n    SELECT c.id, c.nom, p.id, p.nom\n    FROM clients c\n    RIGHT JOIN projets p ON p.client_id = c.id\n) AS fj\nWHERE fj.client_id IS NULL",
+   "out": "+--------+-----------+-------------------+\n| client | projet_id | projet            |\n+--------+-----------+-------------------+\n| NULL   |         7 | Internal Research |\n+--------+-----------+-------------------+\n1 row in set"
+  }
+ ],
+ "D4": [
+  {
+   "cmd": "SELECT COUNT(*) AS lignes_avec_UNION FROM (\n    SELECT c.id AS cid, p.id AS pid FROM clients c LEFT JOIN projets p ON p.client_id = c.id\n    UNION\n    SELECT c.id, p.id FROM clients c RIGHT JOIN projets p ON p.client_id = c.id\n) AS t",
+   "out": "+-------------------+\n| lignes_avec_UNION |\n+-------------------+\n|                 8 |\n+-------------------+\n1 row in set"
+  },
+  {
+   "cmd": "SELECT COUNT(*) AS lignes_avec_UNION_ALL FROM (\n    SELECT c.id AS cid, p.id AS pid FROM clients c LEFT JOIN projets p ON p.client_id = c.id\n    UNION ALL\n    SELECT c.id, p.id FROM clients c RIGHT JOIN projets p ON p.client_id = c.id\n) AS t",
+   "out": "+-----------------------+\n| lignes_avec_UNION_ALL |\n+-----------------------+\n|                    14 |\n+-----------------------+\n1 row in set"
+  }
+ ],
+ "E1": [
+  {
+   "cmd": "SELECT e.prenom, e.nom, m.prenom AS prenom_manager, m.nom AS nom_manager\nFROM employes e\nLEFT JOIN employes m ON e.manager_id = m.id\nORDER BY e.id",
+   "out": "+--------+---------+----------------+-------------+\n| prenom | nom     | prenom_manager | nom_manager |\n+--------+---------+----------------+-------------+\n| Paul   | Martin  | NULL           | NULL        |\n| Sophie | Durand  | NULL           | NULL        |\n| Lucas  | Bernard | Paul           | Martin      |\n| Nadia  | Robert  | NULL           | NULL        |\n| Karim  | Petit   | Sophie         | Durand      |\n| Ines   | Garcia  | Nadia          | Robert      |\n| Yanis  | Moreau  | Paul           | Martin      |\n| Lina   | Roux    | NULL           | NULL        |\n| Adam   | Faure   | NULL           | NULL        |\n+--------+---------+----------------+-------------+\n9 rows in set"
+  }
+ ],
+ "E2": [
+  {
+   "cmd": "SELECT e.prenom, e.nom, m.prenom AS prenom_manager, m.nom AS nom_manager\nFROM employes e\nINNER JOIN employes m ON e.manager_id = m.id\nORDER BY e.id",
+   "out": "+--------+---------+----------------+-------------+\n| prenom | nom     | prenom_manager | nom_manager |\n+--------+---------+----------------+-------------+\n| Lucas  | Bernard | Paul           | Martin      |\n| Karim  | Petit   | Sophie         | Durand      |\n| Ines   | Garcia  | Nadia          | Robert      |\n| Yanis  | Moreau  | Paul           | Martin      |\n+--------+---------+----------------+-------------+\n4 rows in set"
+  }
+ ],
+ "E3": [
+  {
+   "cmd": "SELECT e.id, e.prenom, e.nom, e.poste\nFROM employes e\nLEFT JOIN employes m ON e.manager_id = m.id\nWHERE m.id IS NULL\nORDER BY e.id",
+   "out": "+----+--------+--------+------------------------+\n| id | prenom | nom    | poste                  |\n+----+--------+--------+------------------------+\n|  1 | Paul   | Martin | Network Administrator  |\n|  2 | Sophie | Durand | Developer              |\n|  4 | Nadia  | Robert | Cybersecurity Engineer |\n|  8 | Lina   | Roux   | Data Analyst           |\n|  9 | Adam   | Faure  | Consultant             |\n+----+--------+--------+------------------------+\n5 rows in set"
+  }
+ ],
+ "E4": [
+  {
+   "cmd": "SELECT CONCAT(e.prenom, ' ', e.nom) AS employe, e.poste,\n       COALESCE(CONCAT(m.prenom, ' ', m.nom), '(aucun)') AS manager\nFROM employes e\nLEFT JOIN employes m ON e.manager_id = m.id\nORDER BY manager, employe",
+   "out": "+---------------+------------------------+---------------+\n| employe       | poste                  | manager       |\n+---------------+------------------------+---------------+\n| Adam Faure    | Consultant             | (aucun)       |\n| Lina Roux     | Data Analyst           | (aucun)       |\n| Nadia Robert  | Cybersecurity Engineer | (aucun)       |\n| Paul Martin   | Network Administrator  | (aucun)       |\n| Sophie Durand | Developer              | (aucun)       |\n| Ines Garcia   | SOC Analyst            | Nadia Robert  |\n| Lucas Bernard | Technician             | Paul Martin   |\n| Yanis Moreau  | Network Engineer       | Paul Martin   |\n| Karim Petit   | Developer              | Sophie Durand |\n+---------------+------------------------+---------------+\n9 rows in set"
+  }
+ ],
+ "F1": [
+  {
+   "cmd": "SELECT d.nom AS departement, COUNT(*) AS nb_employes\nFROM employes e\nINNER JOIN departements d ON e.departement_id = d.id\nGROUP BY d.id, d.nom\nORDER BY nb_employes DESC, d.nom",
+   "out": "+---------------+-------------+\n| departement   | nb_employes |\n+---------------+-------------+\n| Cybersecurity |           2 |\n| Development   |           2 |\n| Networking    |           2 |\n| Data          |           1 |\n| Support       |           1 |\n+---------------+-------------+\n5 rows in set"
+  }
+ ],
+ "F2": [
+  {
+   "cmd": "SELECT d.nom AS departement, ROUND(AVG(e.salaire), 2) AS salaire_moyen\nFROM employes e\nINNER JOIN departements d ON e.departement_id = d.id\nGROUP BY d.id, d.nom\nORDER BY salaire_moyen DESC",
+   "out": "+---------------+---------------+\n| departement   | salaire_moyen |\n+---------------+---------------+\n| Cybersecurity |       4400.00 |\n| Data          |       4200.00 |\n| Networking    |       3950.00 |\n| Development   |       3700.00 |\n| Support       |       2850.00 |\n+---------------+---------------+\n5 rows in set"
+  }
+ ],
+ "F3": [
+  {
+   "cmd": "SELECT d.nom AS departement, ROUND(AVG(e.salaire), 2) AS salaire_moyen\nFROM employes e\nINNER JOIN departements d ON e.departement_id = d.id\nGROUP BY d.id, d.nom\nHAVING AVG(e.salaire) > 4000\nORDER BY salaire_moyen DESC",
+   "out": "+---------------+---------------+\n| departement   | salaire_moyen |\n+---------------+---------------+\n| Cybersecurity |       4400.00 |\n| Data          |       4200.00 |\n+---------------+---------------+\n2 rows in set"
+  }
+ ],
+ "F4": [
+  {
+   "cmd": "SELECT c.nom AS client, COUNT(p.id) AS nb_projets, SUM(p.budget) AS budget_total\nFROM clients c\nINNER JOIN projets p ON p.client_id = c.id\nGROUP BY c.id, c.nom\nORDER BY budget_total DESC",
+   "out": "+----------------+------------+--------------+\n| client         | nb_projets | budget_total |\n+----------------+------------+--------------+\n| Medialab       |          1 |     40000.00 |\n| CyberSolutions |          2 |     37000.00 |\n| FinSecure      |          1 |     32000.00 |\n| DataPro        |          1 |     18000.00 |\n| TechCorp       |          1 |     15000.00 |\n+----------------+------------+--------------+\n5 rows in set"
+  }
+ ],
+ "F5": [
+  {
+   "cmd": "SELECT c.nom AS client, SUM(p.budget) AS budget_total\nFROM clients c\nINNER JOIN projets p ON p.client_id = c.id\nGROUP BY c.id, c.nom\nHAVING SUM(p.budget) > 30000\nORDER BY budget_total DESC",
+   "out": "+----------------+--------------+\n| client         | budget_total |\n+----------------+--------------+\n| Medialab       |     40000.00 |\n| CyberSolutions |     37000.00 |\n| FinSecure      |     32000.00 |\n+----------------+--------------+\n3 rows in set"
+  }
+ ],
+ "F6": [
+  {
+   "cmd": "SELECT p.nom AS projet, COALESCE(SUM(a.heures), 0) AS heures_totales\nFROM projets p\nLEFT JOIN affectations a ON a.projet_id = p.id\nGROUP BY p.id, p.nom\nORDER BY heures_totales DESC",
+   "out": "+---------------------+----------------+\n| projet              | heures_totales |\n+---------------------+----------------+\n| SOC Deployment      |            270 |\n| Web Application     |            230 |\n| Cybersecurity Audit |            210 |\n| Network Migration   |            180 |\n| Data Platform       |            140 |\n| Server Security     |             70 |\n| Internal Research   |              0 |\n+---------------------+----------------+\n7 rows in set"
+  }
+ ],
+ "G1": [
+  {
+   "cmd": "SELECT prenom, nom, salaire,\n       CASE\n           WHEN salaire < 3500 THEN 'Junior'\n           WHEN salaire <= 4200 THEN 'Confirmed'\n           ELSE 'Senior'\n       END AS categorie\nFROM employes\nORDER BY salaire",
+   "out": "+--------+---------+---------+-----------+\n| prenom | nom     | salaire | categorie |\n+--------+---------+---------+-----------+\n| Lucas  | Bernard | 2850.00 | Junior    |\n| Karim  | Petit   | 3500.00 | Confirmed |\n| Paul   | Martin  | 3600.00 | Confirmed |\n| Adam   | Faure   | 3800.00 | Confirmed |\n| Sophie | Durand  | 3900.00 | Confirmed |\n| Ines   | Garcia  | 4100.00 | Confirmed |\n| Lina   | Roux    | 4200.00 | Confirmed |\n| Yanis  | Moreau  | 4300.00 | Senior    |\n| Nadia  | Robert  | 4700.00 | Senior    |\n+--------+---------+---------+-----------+\n9 rows in set"
+  }
+ ],
+ "G2": [
+  {
+   "cmd": "SELECT id, type_incident, severite,\n       CASE severite\n           WHEN 'Critical' THEN 'Urgent'\n           WHEN 'High' THEN 'Important'\n           ELSE 'Standard'\n       END AS categorie_severite\nFROM incidents\nORDER BY id",
+   "out": "+----+-----------------------+----------+--------------------+\n| id | type_incident         | severite | categorie_severite |\n+----+-----------------------+----------+--------------------+\n|  1 | Port Scan             | Low      | Standard           |\n|  2 | SSH Brute Force       | Critical | Urgent             |\n|  3 | SQL Injection Attempt | High     | Important          |\n|  4 | Network Scan          | Medium   | Standard           |\n|  5 | Ransomware Alert      | Critical | Urgent             |\n|  6 | Suspicious Login      | Medium   | Standard           |\n|  7 | Malware Detected      | High     | Important          |\n+----+-----------------------+----------+--------------------+\n7 rows in set"
+  }
+ ],
+ "G3": [
+  {
+   "cmd": "SELECT nom AS projet, budget,\n       CASE\n           WHEN budget < 15000 THEN '< 15000'\n           WHEN budget <= 30000 THEN '15000 - 30000'\n           ELSE '> 30000'\n       END AS categorie_budget\nFROM projets\nORDER BY budget",
+   "out": "+---------------------+----------+------------------+\n| projet              | budget   | categorie_budget |\n+---------------------+----------+------------------+\n| Internal Research   |  9000.00 | < 15000          |\n| Server Security     | 12000.00 | < 15000          |\n| Network Migration   | 15000.00 | 15000 - 30000    |\n| Web Application     | 18000.00 | 15000 - 30000    |\n| Cybersecurity Audit | 25000.00 | 15000 - 30000    |\n| SOC Deployment      | 32000.00 | > 30000          |\n| Data Platform       | 40000.00 | > 30000          |\n+---------------------+----------+------------------+\n7 rows in set"
+  }
+ ],
+ "G4": [
+  {
+   "cmd": "SELECT CASE severite\n           WHEN 'Critical' THEN 'Urgent'\n           WHEN 'High' THEN 'Important'\n           ELSE 'Standard'\n       END AS categorie_severite,\n       COUNT(*) AS nb_incidents\nFROM incidents\nGROUP BY categorie_severite\nORDER BY nb_incidents DESC",
+   "out": "+--------------------+--------------+\n| categorie_severite | nb_incidents |\n+--------------------+--------------+\n| Standard           |            3 |\n| Urgent             |            2 |\n| Important          |            2 |\n+--------------------+--------------+\n3 rows in set"
+  }
+ ],
+ "H1": [
+  {
+   "cmd": "SELECT ROUND(AVG(salaire), 2) AS salaire_moyen FROM employes",
+   "out": "+---------------+\n| salaire_moyen |\n+---------------+\n|       3883.33 |\n+---------------+\n1 row in set"
+  },
+  {
+   "cmd": "SELECT prenom, nom, salaire\nFROM employes\nWHERE salaire > (SELECT AVG(salaire) FROM employes)\nORDER BY salaire DESC",
+   "out": "+--------+--------+---------+\n| prenom | nom    | salaire |\n+--------+--------+---------+\n| Nadia  | Robert | 4700.00 |\n| Yanis  | Moreau | 4300.00 |\n| Lina   | Roux   | 4200.00 |\n| Ines   | Garcia | 4100.00 |\n| Sophie | Durand | 3900.00 |\n+--------+--------+---------+\n5 rows in set"
+  }
+ ],
+ "H2": [
+  {
+   "cmd": "SELECT ROUND(AVG(budget), 2) AS budget_moyen FROM projets",
+   "out": "+--------------+\n| budget_moyen |\n+--------------+\n|     21571.43 |\n+--------------+\n1 row in set"
+  },
+  {
+   "cmd": "SELECT nom AS projet, budget\nFROM projets\nWHERE budget > (SELECT AVG(budget) FROM projets)\nORDER BY budget DESC",
+   "out": "+---------------------+----------+\n| projet              | budget   |\n+---------------------+----------+\n| Data Platform       | 40000.00 |\n| SOC Deployment      | 32000.00 |\n| Cybersecurity Audit | 25000.00 |\n+---------------------+----------+\n3 rows in set"
+  }
+ ],
+ "H3": [
+  {
+   "cmd": "SELECT prenom, nom, poste\nFROM employes\nWHERE departement_id = (SELECT departement_id\n                        FROM employes\n                        WHERE prenom = 'Nadia' AND nom = 'Robert')\n  AND NOT (prenom = 'Nadia' AND nom = 'Robert')",
+   "out": "+--------+--------+-------------+\n| prenom | nom    | poste       |\n+--------+--------+-------------+\n| Ines   | Garcia | SOC Analyst |\n+--------+--------+-------------+\n1 row in set"
+  }
+ ],
+ "H4": [
+  {
+   "cmd": "SELECT id, nom AS client\nFROM clients\nWHERE id IN (SELECT client_id FROM projets)\nORDER BY id",
+   "out": "+----+----------------+\n| id | client         |\n+----+----------------+\n|  1 | TechCorp       |\n|  2 | CyberSolutions |\n|  3 | DataPro        |\n|  4 | FinSecure      |\n|  5 | Medialab       |\n+----+----------------+\n5 rows in set"
+  }
+ ],
+ "H5": [
+  {
+   "cmd": "SELECT id, nom AS client\nFROM clients\nWHERE id NOT IN (SELECT client_id FROM projets)",
+   "out": "Empty set"
+  },
+  {
+   "cmd": "SELECT id, nom AS client\nFROM clients\nWHERE id NOT IN (SELECT client_id FROM projets WHERE client_id IS NOT NULL)",
+   "out": "+----+-----------------+\n| id | client          |\n+----+-----------------+\n|  6 | NoProjectClient |\n+----+-----------------+\n1 row in set"
+  }
+ ],
+ "I1": [
+  {
+   "cmd": "SELECT c.id, c.nom AS client\nFROM clients c\nWHERE EXISTS (SELECT 1 FROM projets p WHERE p.client_id = c.id)\nORDER BY c.id",
+   "out": "+----+----------------+\n| id | client         |\n+----+----------------+\n|  1 | TechCorp       |\n|  2 | CyberSolutions |\n|  3 | DataPro        |\n|  4 | FinSecure      |\n|  5 | Medialab       |\n+----+----------------+\n5 rows in set"
+  }
+ ],
+ "I2": [
+  {
+   "cmd": "SELECT c.id, c.nom AS client\nFROM clients c\nWHERE NOT EXISTS (SELECT 1 FROM projets p WHERE p.client_id = c.id)",
+   "out": "+----+-----------------+\n| id | client          |\n+----+-----------------+\n|  6 | NoProjectClient |\n+----+-----------------+\n1 row in set"
+  }
+ ],
+ "I3": [
+  {
+   "cmd": "SELECT e.id, e.prenom, e.nom\nFROM employes e\nWHERE EXISTS (SELECT 1 FROM affectations a WHERE a.employe_id = e.id)\nORDER BY e.id",
+   "out": "+----+--------+--------+\n| id | prenom | nom    |\n+----+--------+--------+\n|  1 | Paul   | Martin |\n|  2 | Sophie | Durand |\n|  4 | Nadia  | Robert |\n|  5 | Karim  | Petit  |\n|  6 | Ines   | Garcia |\n|  7 | Yanis  | Moreau |\n|  8 | Lina   | Roux   |\n+----+--------+--------+\n7 rows in set"
+  }
+ ],
+ "I4": [
+  {
+   "cmd": "SELECT c.id, c.nom AS client\nFROM clients c\nINNER JOIN projets p ON p.client_id = c.id\nORDER BY c.id",
+   "out": "+----+----------------+\n| id | client         |\n+----+----------------+\n|  1 | TechCorp       |\n|  2 | CyberSolutions |\n|  2 | CyberSolutions |\n|  3 | DataPro        |\n|  4 | FinSecure      |\n|  5 | Medialab       |\n+----+----------------+\n6 rows in set"
+  },
+  {
+   "cmd": "SELECT DISTINCT c.id, c.nom AS client\nFROM clients c\nINNER JOIN projets p ON p.client_id = c.id\nORDER BY c.id",
+   "out": "+----+----------------+\n| id | client         |\n+----+----------------+\n|  1 | TechCorp       |\n|  2 | CyberSolutions |\n|  3 | DataPro        |\n|  4 | FinSecure      |\n|  5 | Medialab       |\n+----+----------------+\n5 rows in set"
+  }
+ ],
+ "J1": [
+  {
+   "cmd": "WITH moyennes AS (\n    SELECT d.nom AS departement, AVG(e.salaire) AS salaire_moyen\n    FROM departements d\n    INNER JOIN employes e ON e.departement_id = d.id\n    GROUP BY d.id, d.nom\n)\nSELECT departement, ROUND(salaire_moyen, 2) AS salaire_moyen\nFROM moyennes\nWHERE salaire_moyen > 4000\nORDER BY salaire_moyen DESC",
+   "out": "+---------------+---------------+\n| departement   | salaire_moyen |\n+---------------+---------------+\n| Cybersecurity |       4400.00 |\n| Data          |       4200.00 |\n+---------------+---------------+\n2 rows in set"
+  }
+ ],
+ "J2": [
+  {
+   "cmd": "WITH heures_projet AS (\n    SELECT projet_id, SUM(heures) AS heures_totales\n    FROM affectations\n    GROUP BY projet_id\n)\nSELECT p.nom AS projet, h.heures_totales\nFROM heures_projet h\nINNER JOIN projets p ON p.id = h.projet_id\nWHERE h.heures_totales > 150\nORDER BY h.heures_totales DESC",
+   "out": "+---------------------+----------------+\n| projet              | heures_totales |\n+---------------------+----------------+\n| SOC Deployment      |            270 |\n| Web Application     |            230 |\n| Cybersecurity Audit |            210 |\n| Network Migration   |            180 |\n+---------------------+----------------+\n4 rows in set"
+  }
+ ],
+ "J3": [
+  {
+   "cmd": "WITH heures_projet AS (\n    SELECT projet_id, SUM(heures) AS heures_totales, COUNT(*) AS nb_employes\n    FROM affectations\n    GROUP BY projet_id\n),\nincidents_projet AS (\n    SELECT projet_id, COUNT(*) AS nb_incidents\n    FROM incidents\n    WHERE projet_id IS NOT NULL\n    GROUP BY projet_id\n)\nSELECT p.nom AS projet, p.statut,\n       COALESCE(h.nb_employes, 0) AS nb_employes,\n       COALESCE(h.heures_totales, 0) AS heures_totales,\n       COALESCE(i.nb_incidents, 0) AS nb_incidents\nFROM projets p\nLEFT JOIN heures_projet h ON h.projet_id = p.id\nLEFT JOIN incidents_projet i ON i.projet_id = p.id\nORDER BY nb_incidents DESC, heures_totales DESC",
+   "out": "+---------------------+-------------+-------------+----------------+--------------+\n| projet              | statut      | nb_employes | heures_totales | nb_incidents |\n+---------------------+-------------+-------------+----------------+--------------+\n| Network Migration   | Completed   |           2 |            180 |            2 |\n| SOC Deployment      | In Progress |           2 |            270 |            1 |\n| Web Application     | In Progress |           2 |            230 |            1 |\n| Cybersecurity Audit | In Progress |           2 |            210 |            1 |\n| Data Platform       | Planned     |           1 |            140 |            1 |\n| Server Security     | Completed   |           1 |             70 |            0 |\n| Internal Research   | Planned     |           0 |              0 |            0 |\n+---------------------+-------------+-------------+----------------+--------------+\n7 rows in set"
+  }
+ ],
+ "K1": [
+  {
+   "cmd": "CREATE VIEW vue_projets_clients AS\nSELECT p.nom AS projet, p.budget, p.statut, c.nom AS client, c.ville\nFROM projets p\nLEFT JOIN clients c ON p.client_id = c.id",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "cmd": "SHOW FULL TABLES WHERE Table_type = 'VIEW'",
+   "out": "+------------------------------+------------+\n| Tables_in_entreprise_avancee | Table_type |\n+------------------------------+------------+\n| vue_projets_clients          | VIEW       |\n+------------------------------+------------+\n1 row in set"
+  },
+  {
+   "cmd": "SELECT * FROM vue_projets_clients",
+   "out": "+---------------------+----------+-------------+----------------+----------+\n| projet              | budget   | statut      | client         | ville    |\n+---------------------+----------+-------------+----------------+----------+\n| Network Migration   | 15000.00 | Completed   | TechCorp       | Paris    |\n| Cybersecurity Audit | 25000.00 | In Progress | CyberSolutions | Lyon     |\n| Web Application     | 18000.00 | In Progress | DataPro        | Lille    |\n| Server Security     | 12000.00 | Completed   | CyberSolutions | Lyon     |\n| SOC Deployment      | 32000.00 | In Progress | FinSecure      | Nantes   |\n| Data Platform       | 40000.00 | Planned     | Medialab       | Bordeaux |\n| Internal Research   |  9000.00 | Planned     | NULL           | NULL     |\n+---------------------+----------+-------------+----------------+----------+\n7 rows in set"
+  }
+ ],
+ "K2": [
+  {
+   "cmd": "SELECT projet, budget, client, ville\nFROM vue_projets_clients\nWHERE statut = 'In Progress'\nORDER BY budget DESC",
+   "out": "+---------------------+----------+----------------+--------+\n| projet              | budget   | client         | ville  |\n+---------------------+----------+----------------+--------+\n| SOC Deployment      | 32000.00 | FinSecure      | Nantes |\n| Cybersecurity Audit | 25000.00 | CyberSolutions | Lyon   |\n| Web Application     | 18000.00 | DataPro        | Lille  |\n+---------------------+----------+----------------+--------+\n3 rows in set"
+  }
+ ],
+ "K3": [
+  {
+   "cmd": "SELECT projet, budget, statut, client\nFROM vue_projets_clients\nWHERE budget > 20000\nORDER BY budget DESC",
+   "out": "+---------------------+----------+-------------+----------------+\n| projet              | budget   | statut      | client         |\n+---------------------+----------+-------------+----------------+\n| Data Platform       | 40000.00 | Planned     | Medialab       |\n| SOC Deployment      | 32000.00 | In Progress | FinSecure      |\n| Cybersecurity Audit | 25000.00 | In Progress | CyberSolutions |\n+---------------------+----------+-------------+----------------+\n3 rows in set"
+  }
+ ],
+ "K4": [
+  {
+   "cmd": "DROP VIEW vue_projets_clients",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "cmd": "SHOW FULL TABLES WHERE Table_type = 'VIEW'",
+   "out": "Empty set"
+  },
+  {
+   "cmd": "SELECT * FROM vue_projets_clients",
+   "out": "ERROR 1146 (42S02): Table 'entreprise_avancee.vue_projets_clients' doesn't exist"
+  }
+ ],
+ "L1": [
+  {
+   "cmd": "SELECT i.type_incident, i.adresse_ip, i.date_incident,\n       CONCAT(e.prenom, ' ', e.nom) AS employe, p.nom AS projet\nFROM incidents i\nLEFT JOIN employes e ON i.employe_id = e.id\nLEFT JOIN projets p ON i.projet_id = p.id\nWHERE i.severite = 'Critical'\nORDER BY i.date_incident DESC",
+   "out": "+------------------+--------------+---------------------+--------------+---------------------+\n| type_incident    | adresse_ip   | date_incident       | employe      | projet              |\n+------------------+--------------+---------------------+--------------+---------------------+\n| Ransomware Alert | 10.10.2.40   | 2026-09-24 08:20:00 | Nadia Robert | SOC Deployment      |\n| SSH Brute Force  | 192.168.1.50 | 2026-09-21 11:42:00 | Ines Garcia  | Cybersecurity Audit |\n+------------------+--------------+---------------------+--------------+---------------------+\n2 rows in set"
+  }
+ ],
+ "L2": [
+  {
+   "cmd": "SELECT severite, COUNT(*) AS nb_incidents\nFROM incidents\nGROUP BY severite\nORDER BY nb_incidents DESC, severite",
+   "out": "+----------+--------------+\n| severite | nb_incidents |\n+----------+--------------+\n| Critical |            2 |\n| High     |            2 |\n| Medium   |            2 |\n| Low      |            1 |\n+----------+--------------+\n4 rows in set"
+  }
+ ],
+ "L3": [
+  {
+   "cmd": "SELECT p.nom AS projet, COUNT(i.id) AS nb_incidents\nFROM projets p\nLEFT JOIN incidents i ON i.projet_id = p.id\nGROUP BY p.id, p.nom\nORDER BY nb_incidents DESC, p.id",
+   "out": "+---------------------+--------------+\n| projet              | nb_incidents |\n+---------------------+--------------+\n| Network Migration   |            2 |\n| Cybersecurity Audit |            1 |\n| Web Application     |            1 |\n| SOC Deployment      |            1 |\n| Data Platform       |            1 |\n| Server Security     |            0 |\n| Internal Research   |            0 |\n+---------------------+--------------+\n7 rows in set"
+  }
+ ],
+ "L4": [
+  {
+   "cmd": "SELECT e.id, e.prenom, e.nom, e.poste\nFROM employes e\nWHERE EXISTS (SELECT 1\n              FROM incidents i\n              WHERE i.employe_id = e.id AND i.severite = 'Critical')",
+   "out": "+----+--------+--------+------------------------+\n| id | prenom | nom    | poste                  |\n+----+--------+--------+------------------------+\n|  6 | Ines   | Garcia | SOC Analyst            |\n|  4 | Nadia  | Robert | Cybersecurity Engineer |\n+----+--------+--------+------------------------+\n2 rows in set"
+  }
+ ],
+ "L5": [
+  {
+   "cmd": "SELECT p.id, p.nom AS projet, p.statut\nFROM projets p\nWHERE NOT EXISTS (SELECT 1 FROM incidents i WHERE i.projet_id = p.id)",
+   "out": "+----+-------------------+-----------+\n| id | projet            | statut    |\n+----+-------------------+-----------+\n|  4 | Server Security   | Completed |\n|  7 | Internal Research | Planned   |\n+----+-------------------+-----------+\n2 rows in set"
+  }
+ ],
+ "L6": [
+  {
+   "cmd": "SELECT id, type_incident, severite, adresse_ip\nFROM incidents\nWHERE adresse_ip LIKE '192.168.%'\nORDER BY id",
+   "out": "+----+-----------------+----------+--------------+\n| id | type_incident   | severite | adresse_ip   |\n+----+-----------------+----------+--------------+\n|  1 | Port Scan       | Low      | 192.168.1.20 |\n|  2 | SSH Brute Force | Critical | 192.168.1.50 |\n|  4 | Network Scan    | Medium   | 192.168.1.30 |\n+----+-----------------+----------+--------------+\n3 rows in set"
+  }
+ ],
+ "L7": [
+  {
+   "cmd": "SELECT id, type_incident, severite, date_incident\nFROM incidents\nORDER BY date_incident DESC\nLIMIT 3",
+   "out": "+----+------------------+----------+---------------------+\n| id | type_incident    | severite | date_incident       |\n+----+------------------+----------+---------------------+\n|  7 | Malware Detected | High     | 2026-09-26 13:30:00 |\n|  6 | Suspicious Login | Medium   | 2026-09-25 22:45:00 |\n|  5 | Ransomware Alert | Critical | 2026-09-24 08:20:00 |\n+----+------------------+----------+---------------------+\n3 rows in set"
+  }
+ ],
+ "L8": [
+  {
+   "cmd": "SELECT COUNT(*) AS total_incidents,\n       SUM(severite = 'Critical') AS nb_critical,\n       SUM(severite = 'High') AS nb_high,\n       COUNT(DISTINCT adresse_ip) AS ip_distinctes\nFROM incidents",
+   "out": "+-----------------+-------------+---------+---------------+\n| total_incidents | nb_critical | nb_high | ip_distinctes |\n+-----------------+-------------+---------+---------------+\n|               7 |           2 |       2 |             7 |\n+-----------------+-------------+---------+---------------+\n1 row in set"
+  }
+ ],
+ "terminal": [
+  {
+   "cmd": "SHOW TABLES",
+   "out": "+------------------------------+\n| Tables_in_entreprise_avancee |\n+------------------------------+\n| affectations                 |\n| clients                      |\n| departements                 |\n| employes                     |\n| incidents                    |\n| projets                      |\n+------------------------------+\n6 rows in set"
+  },
+  {
+   "cmd": "DESCRIBE employes",
+   "out": "+----------------+---------------+------+-----+---------+----------------+\n| Field          | Type          | Null | Key | Default | Extra          |\n+----------------+---------------+------+-----+---------+----------------+\n| id             | int           | NO   | PRI | NULL    | auto_increment |\n| nom            | varchar(60)   | NO   |     | NULL    |                |\n| prenom         | varchar(60)   | NO   |     | NULL    |                |\n| poste          | varchar(80)   | YES  |     | NULL    |                |\n| salaire        | decimal(10,2) | YES  |     | NULL    |                |\n| departement_id | int           | YES  | MUL | NULL    |                |\n| manager_id     | int           | YES  | MUL | NULL    |                |\n| date_embauche  | date          | YES  |     | NULL    |                |\n+----------------+---------------+------+-----+---------+----------------+\n8 rows in set"
+  },
+  {
+   "cmd": "SELECT VERSION()",
+   "out": "+-----------+\n| VERSION() |\n+-----------+\n| 8.4.9     |\n+-----------+\n1 row in set"
+  }
+ ],
+ "showcreate": [
+  {
+   "cmd": "SHOW CREATE TABLE employes\\G",
+   "out": "*************************** 1. row ***************************\n       Table: employes\nCreate Table: CREATE TABLE `employes` (\n  `id` int NOT NULL AUTO_INCREMENT,\n  `nom` varchar(60) NOT NULL,\n  `prenom` varchar(60) NOT NULL,\n  `poste` varchar(80) DEFAULT NULL,\n  `salaire` decimal(10,2) DEFAULT NULL,\n  `departement_id` int DEFAULT NULL,\n  `manager_id` int DEFAULT NULL,\n  `date_embauche` date DEFAULT NULL,\n  PRIMARY KEY (`id`),\n  KEY `departement_id` (`departement_id`),\n  KEY `manager_id` (`manager_id`),\n  CONSTRAINT `employes_ibfk_1` FOREIGN KEY (`departement_id`) REFERENCES `departements` (`id`),\n  CONSTRAINT `employes_ibfk_2` FOREIGN KEY (`manager_id`) REFERENCES `employes` (`id`)\n) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci\n1 row in set"
+  }
+ ],
+ "final": [
+  {
+   "cmd": "SELECT i.id AS incident_id,\n       i.type_incident,\n       i.severite,\n       i.adresse_ip,\n       i.date_incident,\n       COALESCE(CONCAT(e.prenom, ' ', e.nom), 'Non attribue') AS employe,\n       COALESCE(d.nom, '-') AS departement,\n       COALESCE(p.nom, 'Hors projet') AS projet,\n       COALESCE(c.nom, '-') AS client,\n       p.budget AS budget_projet,\n       CASE i.severite\n           WHEN 'Critical' THEN 'Urgent'\n           WHEN 'High' THEN 'Important'\n           ELSE 'Standard'\n       END AS categorie_severite\nFROM incidents i\nLEFT JOIN employes e ON i.employe_id = e.id\nLEFT JOIN departements d ON e.departement_id = d.id\nLEFT JOIN projets p ON i.projet_id = p.id\nLEFT JOIN clients c ON p.client_id = c.id\nWHERE i.date_incident >= (SELECT MAX(date_incident) FROM incidents) - INTERVAL 5 DAY\nORDER BY CASE i.severite\n             WHEN 'Critical' THEN 1\n             WHEN 'High' THEN 2\n             WHEN 'Medium' THEN 3\n             ELSE 4\n         END,\n         i.date_incident DESC",
+   "out": "+-------------+-----------------------+----------+--------------+---------------------+---------------+---------------+-------------------+-----------+---------------+--------------------+\n| incident_id | type_incident         | severite | adresse_ip   | date_incident       | employe       | departement   | projet            | client    | budget_projet | categorie_severite |\n+-------------+-----------------------+----------+--------------+---------------------+---------------+---------------+-------------------+-----------+---------------+--------------------+\n|           5 | Ransomware Alert      | Critical | 10.10.2.40   | 2026-09-24 08:20:00 | Nadia Robert  | Cybersecurity | SOC Deployment    | FinSecure |      32000.00 | Urgent             |\n|           7 | Malware Detected      | High     | 10.10.4.15   | 2026-09-26 13:30:00 | Lina Roux     | Data          | Data Platform     | Medialab  |      40000.00 | Important          |\n|           3 | SQL Injection Attempt | High     | 10.0.0.25    | 2026-09-22 14:05:00 | Sophie Durand | Development   | Web Application   | DataPro   |      18000.00 | Important          |\n|           6 | Suspicious Login      | Medium   | 172.16.5.10  | 2026-09-25 22:45:00 | Non attribue  | -             | Hors projet       | -         |          NULL | Standard           |\n|           4 | Network Scan          | Medium   | 192.168.1.30 | 2026-09-23 16:10:00 | Yanis Moreau  | Networking    | Network Migration | TechCorp  |      15000.00 | Standard           |\n+-------------+-----------------------+----------+--------------+---------------------+---------------+---------------+-------------------+-----------+---------------+--------------------+\n5 rows in set"
+  }
+ ],
+ "O1": [
+  {
+   "cmd": "SELECT id, prenom, nom, poste\nFROM employes\nWHERE departement_id IS NULL",
+   "out": "+----+--------+-------+------------+\n| id | prenom | nom   | poste      |\n+----+--------+-------+------------+\n|  9 | Adam   | Faure | Consultant |\n+----+--------+-------+------------+\n1 row in set"
+  }
+ ],
+ "O2": [
+  {
+   "cmd": "SELECT c.id, c.nom AS client\nFROM clients c\nLEFT JOIN projets p ON p.client_id = c.id\nWHERE p.id IS NULL",
+   "out": "+----+-----------------+\n| id | client          |\n+----+-----------------+\n|  6 | NoProjectClient |\n+----+-----------------+\n1 row in set"
+  }
+ ],
+ "O3": [
+  {
+   "cmd": "SELECT id, nom AS projet, budget, statut\nFROM projets\nWHERE client_id IS NULL",
+   "out": "+----+-------------------+---------+---------+\n| id | projet            | budget  | statut  |\n+----+-------------------+---------+---------+\n|  7 | Internal Research | 9000.00 | Planned |\n+----+-------------------+---------+---------+\n1 row in set"
+  }
+ ],
+ "O4": [
+  {
+   "cmd": "SELECT p.id, p.nom AS projet, p.statut\nFROM projets p\nLEFT JOIN affectations a ON a.projet_id = p.id\nWHERE a.projet_id IS NULL",
+   "out": "+----+-------------------+---------+\n| id | projet            | statut  |\n+----+-------------------+---------+\n|  7 | Internal Research | Planned |\n+----+-------------------+---------+\n1 row in set"
+  }
+ ],
+ "O5": [
+  {
+   "cmd": "SELECT id, type_incident, severite, adresse_ip, employe_id, projet_id\nFROM incidents\nWHERE employe_id IS NULL OR projet_id IS NULL",
+   "out": "+----+------------------+----------+-------------+------------+-----------+\n| id | type_incident    | severite | adresse_ip  | employe_id | projet_id |\n+----+------------------+----------+-------------+------------+-----------+\n|  6 | Suspicious Login | Medium   | 172.16.5.10 |       NULL |      NULL |\n+----+------------------+----------+-------------+------------+-----------+\n1 row in set"
+  }
+ ],
+ "O6": [
+  {
+   "cmd": "SELECT NULL = NULL AS null_egal_null, NULL IS NULL AS null_is_null, COUNT(*) AS lignes, COUNT(manager_id) AS managers_renseignes FROM employes",
+   "out": "+----------------+--------------+--------+---------------------+\n| null_egal_null | null_is_null | lignes | managers_renseignes |\n+----------------+--------------+--------+---------------------+\n|           NULL |            1 |      9 |                   4 |\n+----------------+--------------+--------+---------------------+\n1 row in set"
+  }
+ ],
+ "bash": [
+  {
+   "cmd": "mysql -u root -p -D entreprise_avancee -e \"SELECT COUNT(*) FROM employes;\"",
+   "out": "COUNT(*)\n9"
+  }
+ ],
+ "status": [
+  {
+   "cmd": "STATUS",
+   "out": "--------------\nC:\\Users\\tomga\\tp2_work\\mysql\\mysql-8.4.9-winx64\\bin\\mysql.exe  Ver 8.4.9 for Win64 on x86_64 (MySQL Community Server - GPL)\n\nConnection id:\t\t82\nCurrent database:\t\nCurrent user:\t\troot@localhost\nSSL:\t\t\tCipher in use is TLS_AES_128_GCM_SHA256\nUsing delimiter:\t;\nServer version:\t\t8.4.9 MySQL Community Server - GPL\nProtocol version:\t10\nConnection:\t\t127.0.0.1 via TCP/IP\nServer characterset:\tutf8mb4\nDb     characterset:\tutf8mb4\nClient characterset:\tcp850\nConn.  characterset:\tcp850\nTCP port:\t\t3307\nUptime:\t\t\t1 min 32 sec\n\nThreads: 2  Questions: 329  Slow queries: 0  Opens: 312  Flush tables: 3  Open tables: 232  Queries per second avg: 3.576\n--------------"
+  }
+ ]
+}

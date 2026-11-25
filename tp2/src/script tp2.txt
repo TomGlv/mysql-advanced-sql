@@ -1,0 +1,137 @@
+
+-- ==================================================
+-- TP 2 : MYSQL AVANCE
+-- GROUP BY, HAVING, SOUS-REQUETES, EXISTS
+-- ==================================================
+
+CREATE DATABASE IF NOT EXISTS tp2_mysql;
+USE tp2_mysql;
+
+-- Suppression des anciennes tables pour pouvoir
+-- réinitialiser le TP. Attention : cela efface leurs données.
+
+DROP TABLE IF EXISTS affectations_projets;
+DROP TABLE IF EXISTS projets;
+DROP TABLE IF EXISTS employes;
+DROP TABLE IF EXISTS clients;
+DROP TABLE IF EXISTS departements;
+
+-- ==================================================
+-- 1. CREATION DES TABLES
+-- ==================================================
+
+CREATE TABLE departements (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nom VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE employes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    prenom VARCHAR(50) NOT NULL,
+    nom VARCHAR(50) NOT NULL,
+    salaire DECIMAL(10,2) NOT NULL,
+    departement_id INT,
+    FOREIGN KEY (departement_id)
+        REFERENCES departements(id)
+);
+
+CREATE TABLE clients (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nom VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE projets (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nom VARCHAR(100) NOT NULL,
+    budget DECIMAL(12,2) NOT NULL,
+    client_id INT,
+    FOREIGN KEY (client_id)
+        REFERENCES clients(id)
+);
+
+-- Table d'association entre employés et projets
+CREATE TABLE affectations_projets (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    employe_id INT NOT NULL,
+    projet_id INT NOT NULL,
+    role VARCHAR(100),
+    FOREIGN KEY (employe_id)
+        REFERENCES employes(id),
+    FOREIGN KEY (projet_id)
+        REFERENCES projets(id),
+    UNIQUE (employe_id, projet_id)
+);
+
+-- ==================================================
+-- 2. INSERTION DES DEPARTEMENTS
+-- ==================================================
+
+INSERT INTO departements (nom) VALUES
+('Reseaux'),
+('Cybersecurite'),
+('Developpement'),
+('Support informatique');
+
+-- ==================================================
+-- 3. INSERTION DES EMPLOYES
+-- ==================================================
+
+INSERT INTO employes
+(prenom, nom, salaire, departement_id)
+VALUES
+('Karim', 'Benali', 4500, 1),
+('Sofia', 'Martin', 4200, 1),
+('Nadia', 'Robert', 5200, 2),
+('Amine', 'Kaci', 3900, 2),
+('Lucas', 'Bernard', 3800, 3),
+('Emma', 'Petit', 4100, 3),
+('Yacine', 'Ali', 3000, 4),
+('Sarah', 'Moreau', 3200, 4);
+
+-- ==================================================
+-- 4. INSERTION DES CLIENTS
+-- ==================================================
+
+INSERT INTO clients (nom) VALUES
+('CyberSolutions'),
+('TechNova'),
+('DataPlus'),
+('AlphaConsulting'),
+('SecureNet');
+
+-- ==================================================
+-- 5. INSERTION DES PROJETS
+-- ==================================================
+
+INSERT INTO projets (nom, budget, client_id) VALUES
+('Audit de securite', 25000, 1),
+('Infrastructure reseau', 12000, 1),
+('Application web', 18000, 2),
+('Migration de donnees', 8000, 3),
+('SOC et supervision', 42000, 5);
+
+-- ==================================================
+-- 6. AFFECTATION DES EMPLOYES AUX PROJETS
+-- ==================================================
+
+INSERT INTO affectations_projets
+(employe_id, projet_id, role)
+VALUES
+(1, 2, 'Administrateur reseau'),
+(2, 2, 'Ingenieur reseau'),
+(3, 1, 'Analyste securite'),
+(4, 1, 'Pentester'),
+(3, 5, 'Responsable SOC'),
+(4, 5, 'Analyste SOC'),
+(5, 3, 'Developpeur'),
+(6, 3, 'Developpeuse');
+
+-- ==================================================
+-- 7. VERIFICATION DES DONNEES
+-- ==================================================
+
+SELECT * FROM departements;
+SELECT * FROM employes;
+SELECT * FROM clients;
+SELECT * FROM projets;
+SELECT * FROM affectations_projets;

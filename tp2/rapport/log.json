@@ -1,0 +1,1552 @@
+{
+ "setup": [
+  {
+   "n": 1,
+   "who": "root",
+   "cmd": "SHOW DATABASES LIKE 'tp2%'",
+   "out": "+-----------------+\n| Database (tp2%) |\n+-----------------+\n| tp2_mysql       |\n+-----------------+\n1 row in set"
+  },
+  {
+   "n": 2,
+   "who": "root",
+   "cmd": "SELECT TABLE_NAME, ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA='tp2_mysql'",
+   "out": "+----------------------+--------+\n| TABLE_NAME           | ENGINE |\n+----------------------+--------+\n| affectations_projets | InnoDB |\n| clients              | InnoDB |\n| departements         | InnoDB |\n| employes             | InnoDB |\n| projets              | InnoDB |\n+----------------------+--------+\n5 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "root",
+   "cmd": "SHOW VARIABLES LIKE 'autocommit'",
+   "out": "+---------------+-------+\n| Variable_name | Value |\n+---------------+-------+\n| autocommit    | ON    |\n+---------------+-------+\n1 row in set, 1 warning"
+  },
+  {
+   "n": 4,
+   "who": "root",
+   "cmd": "DROP USER IF EXISTS 'user1'@'localhost', 'U1'@'localhost', 'U2'@'localhost'",
+   "out": "Query OK, 0 rows affected, 3 warnings"
+  },
+  {
+   "n": 5,
+   "who": "root",
+   "cmd": "CREATE USER 'user1'@'localhost' IDENTIFIED BY 'user1'",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 6,
+   "who": "root",
+   "cmd": "GRANT ALL PRIVILEGES ON tp2_mysql.* TO 'user1'@'localhost'",
+   "out": "Query OK, 0 rows affected"
+  }
+ ],
+ "q1": [
+  {
+   "n": 1,
+   "who": "s1",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "s1",
+   "cmd": "START TRANSACTION",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 3,
+   "who": "s1",
+   "cmd": "INSERT INTO projets (nom, budget, client_id) VALUES ('Projet test ROLLBACK', 15000, 4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 4,
+   "who": "s1",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  6 | Projet test ROLLBACK  | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "s1",
+   "cmd": "ROLLBACK",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 6,
+   "who": "s1",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n+----+-----------------------+----------+\n5 rows in set"
+  },
+  {
+   "n": 7,
+   "who": "s1",
+   "cmd": "START TRANSACTION",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 8,
+   "who": "s1",
+   "cmd": "INSERT INTO projets (nom, budget, client_id) VALUES ('Projet test COMMIT', 15000, 4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 9,
+   "who": "s1",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  },
+  {
+   "n": 10,
+   "who": "s1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 11,
+   "who": "s1",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  }
+ ],
+ "q2a": [
+  {
+   "n": 1,
+   "who": "a",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "a",
+   "cmd": "START TRANSACTION",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 3,
+   "who": "a",
+   "cmd": "INSERT INTO projets (nom, budget, client_id) VALUES ('Projet avant fermeture', 9000, 4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 4,
+   "who": "a",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+------------------------+----------+\n| id | nom                    | budget   |\n+----+------------------------+----------+\n|  1 | Audit de securite      | 25000.00 |\n|  2 | Infrastructure reseau  | 12000.00 |\n|  3 | Application web        | 18000.00 |\n|  4 | Migration de donnees   |  8000.00 |\n|  5 | SOC et supervision     | 42000.00 |\n|  7 | Projet test COMMIT     | 15000.00 |\n|  8 | Projet avant fermeture |  9000.00 |\n+----+------------------------+----------+\n7 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "a",
+   "cmd": "NOTE",
+   "out": ">>> Fermeture de l'onglet de connexion (commande EXIT) sans COMMIT"
+  },
+  {
+   "n": 6,
+   "who": "b",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  }
+ ],
+ "q2b": [
+  {
+   "n": 1,
+   "who": "a",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "a",
+   "cmd": "START TRANSACTION",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 3,
+   "who": "a",
+   "cmd": "INSERT INTO projets (nom, budget, client_id) VALUES ('Projet avant crash client', 9500, 4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 4,
+   "who": "a",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+---------------------------+----------+\n| id | nom                       | budget   |\n+----+---------------------------+----------+\n|  1 | Audit de securite         | 25000.00 |\n|  2 | Infrastructure reseau     | 12000.00 |\n|  3 | Application web           | 18000.00 |\n|  4 | Migration de donnees      |  8000.00 |\n|  5 | SOC et supervision        | 42000.00 |\n|  7 | Projet test COMMIT        | 15000.00 |\n|  9 | Projet avant crash client |  9500.00 |\n+----+---------------------------+----------+\n7 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "a",
+   "cmd": "NOTE",
+   "out": ">>> PANNE CLIENT : taskkill /F /PID 14372\nOpération réussie : le processus avec PID 14372 a été terminé."
+  },
+  {
+   "n": 6,
+   "who": "b",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  }
+ ],
+ "q3_rr": [
+  {
+   "n": 1,
+   "who": "p1",
+   "cmd": "SHOW VARIABLES LIKE '%isolation%'",
+   "out": "+-----------------------+-----------------+\n| Variable_name         | Value           |\n+-----------------------+-----------------+\n| transaction_isolation | REPEATABLE-READ |\n+-----------------------+-----------------+\n1 row in set, 1 warning"
+  },
+  {
+   "n": 2,
+   "who": "p1",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 3,
+   "who": "p2",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "INSERT INTO projets (nom, budget, client_id) VALUES ('Projet isolation', 30000, 4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n| 10 | Projet isolation      | 30000.00 |\n+----+-----------------------+----------+\n7 rows in set"
+  },
+  {
+   "n": 6,
+   "who": "p2",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  },
+  {
+   "n": 7,
+   "who": "p1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 8,
+   "who": "p2",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  },
+  {
+   "n": 9,
+   "who": "p2",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 10,
+   "who": "p2",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n| 10 | Projet isolation      | 30000.00 |\n+----+-----------------------+----------+\n7 rows in set"
+  },
+  {
+   "n": 11,
+   "who": "p1",
+   "cmd": "DELETE FROM projets WHERE nom = 'Projet isolation'",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 12,
+   "who": "p1",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  },
+  {
+   "n": 13,
+   "who": "p2",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n| 10 | Projet isolation      | 30000.00 |\n+----+-----------------------+----------+\n7 rows in set"
+  },
+  {
+   "n": 14,
+   "who": "p1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 15,
+   "who": "p2",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 16,
+   "who": "p2",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  }
+ ],
+ "q3_ru": [
+  {
+   "n": 1,
+   "who": "p2",
+   "cmd": "SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SELECT @@transaction_isolation",
+   "out": "+-------------------------+\n| @@transaction_isolation |\n+-------------------------+\n| READ-UNCOMMITTED        |\n+-------------------------+\n1 row in set"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "INSERT INTO projets (nom, budget, client_id) VALUES ('Projet non valide', 7777, 4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 4,
+   "who": "p2",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "ROLLBACK",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 6,
+   "who": "p2",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  },
+  {
+   "n": 7,
+   "who": "p2",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  }
+ ],
+ "q3_ser": [
+  {
+   "n": 1,
+   "who": "p2",
+   "cmd": "SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SELECT @@transaction_isolation",
+   "out": "+-------------------------+\n| @@transaction_isolation |\n+-------------------------+\n| SERIALIZABLE            |\n+-------------------------+\n1 row in set"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "INSERT INTO projets (nom, budget, client_id) VALUES ('Projet serialisable', 11111, 4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 4,
+   "who": "p2",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "<<BLOQUÉ>>"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 5,
+   "who": "p2",
+   "cmd": "(débloquée)",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n| 12 | Projet serialisable   | 11111.00 |\n+----+-----------------------+----------+\n7 rows in set"
+  },
+  {
+   "n": 6,
+   "who": "p2",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 7,
+   "who": "p2",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 12000.00 |\n|  3 | Application web       | 18000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n| 12 | Projet serialisable   | 11111.00 |\n+----+-----------------------+----------+\n7 rows in set"
+  },
+  {
+   "n": 8,
+   "who": "p1",
+   "cmd": "UPDATE projets SET budget = 99999 WHERE nom = 'Projet serialisable'",
+   "out": "<<BLOQUÉ>>"
+  },
+  {
+   "n": 9,
+   "who": "p2",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 9,
+   "who": "p1",
+   "cmd": "(débloquée)",
+   "out": "Query OK, 1 row affected\nRows matched: 1  Changed: 1  Warnings: 0"
+  },
+  {
+   "n": 10,
+   "who": "p1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 11,
+   "who": "p1",
+   "cmd": "DELETE FROM projets WHERE nom = 'Projet serialisable'",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 12,
+   "who": "p1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  }
+ ],
+ "concurrence": [
+  {
+   "n": 1,
+   "who": "S1",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "S2",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 3,
+   "who": "S1",
+   "cmd": "UPDATE projets SET budget = 3000 WHERE id = 3",
+   "out": "Query OK, 1 row affected\nRows matched: 1  Changed: 1  Warnings: 0"
+  },
+  {
+   "n": 4,
+   "who": "S2",
+   "cmd": "UPDATE projets SET budget = 3500 WHERE id = 3",
+   "out": "<<BLOQUÉ>>"
+  },
+  {
+   "n": 5,
+   "who": "S1",
+   "cmd": "SELECT budget FROM projets WHERE id = 3",
+   "out": "+---------+\n| budget  |\n+---------+\n| 3000.00 |\n+---------+\n1 row in set"
+  },
+  {
+   "n": 6,
+   "who": "S1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 6,
+   "who": "S2",
+   "cmd": "(débloquée)",
+   "out": "Query OK, 1 row affected\nRows matched: 1  Changed: 1  Warnings: 0"
+  },
+  {
+   "n": 7,
+   "who": "S2",
+   "cmd": "SELECT budget FROM projets WHERE id = 3",
+   "out": "+---------+\n| budget  |\n+---------+\n| 3500.00 |\n+---------+\n1 row in set"
+  },
+  {
+   "n": 8,
+   "who": "S1",
+   "cmd": "SELECT budget FROM projets WHERE id = 3",
+   "out": "+---------+\n| budget  |\n+---------+\n| 3000.00 |\n+---------+\n1 row in set"
+  },
+  {
+   "n": 9,
+   "who": "S2",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 10,
+   "who": "S1",
+   "cmd": "SELECT budget FROM projets WHERE id = 3",
+   "out": "+---------+\n| budget  |\n+---------+\n| 3000.00 |\n+---------+\n1 row in set"
+  },
+  {
+   "n": 11,
+   "who": "S2",
+   "cmd": "SELECT budget FROM projets WHERE id = 3",
+   "out": "+---------+\n| budget  |\n+---------+\n| 3500.00 |\n+---------+\n1 row in set"
+  },
+  {
+   "n": 12,
+   "who": "S1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 13,
+   "who": "S1",
+   "cmd": "SELECT budget FROM projets WHERE id = 3",
+   "out": "+---------+\n| budget  |\n+---------+\n| 3500.00 |\n+---------+\n1 row in set"
+  },
+  {
+   "n": 14,
+   "who": "S1",
+   "cmd": "SELECT budget FROM projets WHERE id = 3 FOR UPDATE OF budget",
+   "out": "ERROR 3568 (HY000): Unresolved table name `budget` in locking clause."
+  },
+  {
+   "n": 15,
+   "who": "S1",
+   "cmd": "SELECT budget FROM projets WHERE id = 3 FOR UPDATE",
+   "out": "+---------+\n| budget  |\n+---------+\n| 3500.00 |\n+---------+\n1 row in set"
+  },
+  {
+   "n": 16,
+   "who": "S2",
+   "cmd": "UPDATE projets SET budget = 4000 WHERE id = 3",
+   "out": "<<BLOQUÉ>>"
+  },
+  {
+   "n": 17,
+   "who": "S1",
+   "cmd": "UPDATE projets SET budget = 5000 WHERE id = 3",
+   "out": "Query OK, 1 row affected\nRows matched: 1  Changed: 1  Warnings: 0"
+  },
+  {
+   "n": 18,
+   "who": "S1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 18,
+   "who": "S2",
+   "cmd": "(débloquée)",
+   "out": "Query OK, 1 row affected\nRows matched: 1  Changed: 1  Warnings: 0"
+  },
+  {
+   "n": 19,
+   "who": "S2",
+   "cmd": "SELECT budget FROM projets WHERE id = 3",
+   "out": "+---------+\n| budget  |\n+---------+\n| 4000.00 |\n+---------+\n1 row in set"
+  },
+  {
+   "n": 20,
+   "who": "S2",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 21,
+   "who": "S1",
+   "cmd": "SELECT budget FROM projets WHERE id = 3",
+   "out": "+---------+\n| budget  |\n+---------+\n| 4000.00 |\n+---------+\n1 row in set"
+  }
+ ],
+ "droits": [
+  {
+   "n": 1,
+   "who": "U1",
+   "cmd": "SELECT CURRENT_USER()",
+   "out": "+----------------+\n| CURRENT_USER() |\n+----------------+\n| U1@localhost   |\n+----------------+\n1 row in set"
+  },
+  {
+   "n": 2,
+   "who": "U1",
+   "cmd": "SELECT id, nom, budget FROM projets WHERE id = 2",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  2 | Infrastructure reseau | 12000.00 |\n+----+-----------------------+----------+\n1 row in set"
+  },
+  {
+   "n": 3,
+   "who": "U1",
+   "cmd": "UPDATE projets SET budget = 13000 WHERE id = 2",
+   "out": "Query OK, 1 row affected\nRows matched: 1  Changed: 1  Warnings: 0"
+  },
+  {
+   "n": 4,
+   "who": "U1",
+   "cmd": "SELECT id, nom, budget FROM projets WHERE id = 2",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  2 | Infrastructure reseau | 13000.00 |\n+----+-----------------------+----------+\n1 row in set"
+  },
+  {
+   "n": 5,
+   "who": "U2",
+   "cmd": "SELECT CURRENT_USER()",
+   "out": "+----------------+\n| CURRENT_USER() |\n+----------------+\n| U2@localhost   |\n+----------------+\n1 row in set"
+  },
+  {
+   "n": 6,
+   "who": "U2",
+   "cmd": "SELECT id, nom, budget FROM projets WHERE id = 2",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  2 | Infrastructure reseau | 13000.00 |\n+----+-----------------------+----------+\n1 row in set"
+  },
+  {
+   "n": 7,
+   "who": "U2",
+   "cmd": "UPDATE projets SET budget = 14000 WHERE id = 2",
+   "out": "ERROR 1142 (42000): UPDATE command denied to user 'U2'@'localhost' for table 'projets'"
+  },
+  {
+   "n": 8,
+   "who": "U1",
+   "cmd": "GRANT UPDATE ON tp2_mysql.projets TO 'U2'@'localhost'",
+   "out": "ERROR 1142 (42000): GRANT command denied to user 'U1'@'localhost' for table 'projets'"
+  },
+  {
+   "n": 9,
+   "who": "root",
+   "cmd": "GRANT ALL PRIVILEGES ON tp2_mysql.* TO 'U1'@'localhost' WITH GRANT OPTION",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 10,
+   "who": "root",
+   "cmd": "SHOW GRANTS FOR 'U1'@'localhost'",
+   "out": "+-----------------------------------------------------------------------------+\n| Grants for U1@localhost                                                     |\n+-----------------------------------------------------------------------------+\n| GRANT USAGE ON *.* TO `U1`@`localhost`                                      |\n| GRANT ALL PRIVILEGES ON `tp2_mysql`.* TO `U1`@`localhost` WITH GRANT OPTION |\n+-----------------------------------------------------------------------------+\n2 rows in set"
+  },
+  {
+   "n": 11,
+   "who": "U1",
+   "cmd": "GRANT UPDATE ON tp2_mysql.projets TO 'U2'@'localhost'",
+   "out": "ERROR 1142 (42000): GRANT command denied to user 'U1'@'localhost' for table 'projets'"
+  },
+  {
+   "n": 12,
+   "who": "U2",
+   "cmd": "UPDATE projets SET budget = 14000 WHERE id = 2",
+   "out": "ERROR 1142 (42000): UPDATE command denied to user 'U2'@'localhost' for table 'projets'"
+  },
+  {
+   "n": 13,
+   "who": "U2",
+   "cmd": "SELECT id, nom, budget FROM projets WHERE id = 2",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  2 | Infrastructure reseau | 13000.00 |\n+----+-----------------------+----------+\n1 row in set"
+  },
+  {
+   "n": 14,
+   "who": "U1",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 15,
+   "who": "U1",
+   "cmd": "INSERT INTO projets (nom, budget, client_id) VALUES ('Projet cree par U1', 21000, 4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 16,
+   "who": "U1",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 13000.00 |\n|  3 | Application web       |  4000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n| 13 | Projet cree par U1    | 21000.00 |\n+----+-----------------------+----------+\n7 rows in set"
+  },
+  {
+   "n": 17,
+   "who": "root",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 13000.00 |\n|  3 | Application web       |  4000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  },
+  {
+   "n": 18,
+   "who": "U2",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 13000.00 |\n|  3 | Application web       |  4000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n+----+-----------------------+----------+\n6 rows in set"
+  },
+  {
+   "n": 19,
+   "who": "U1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 20,
+   "who": "root",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 13000.00 |\n|  3 | Application web       |  4000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n| 13 | Projet cree par U1    | 21000.00 |\n+----+-----------------------+----------+\n7 rows in set"
+  },
+  {
+   "n": 21,
+   "who": "U2",
+   "cmd": "SELECT id, nom, budget FROM projets",
+   "out": "+----+-----------------------+----------+\n| id | nom                   | budget   |\n+----+-----------------------+----------+\n|  1 | Audit de securite     | 25000.00 |\n|  2 | Infrastructure reseau | 13000.00 |\n|  3 | Application web       |  4000.00 |\n|  4 | Migration de donnees  |  8000.00 |\n|  5 | SOC et supervision    | 42000.00 |\n|  7 | Projet test COMMIT    | 15000.00 |\n| 13 | Projet cree par U1    | 21000.00 |\n+----+-----------------------+----------+\n7 rows in set"
+  }
+ ],
+ "tab1": [
+  {
+   "n": 1,
+   "who": "p1",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 1,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 1,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 2,
+   "who": "p1",
+   "cmd": "INSERT INTO T VALUES (3,4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 2,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "INSERT INTO T VALUES (5,6)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n|    5 |    6 |\n+------+------+\n3 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "ROLLBACK",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 4,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 5,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 6,
+   "who": "p1",
+   "cmd": "INSERT INTO T VALUES (3,4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 6,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 6,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 7,
+   "who": "p1",
+   "cmd": "NOTE",
+   "out": ">>> EXIT (déconnexion de p1)"
+  },
+  {
+   "n": 8,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  }
+ ],
+ "tab2": [
+  {
+   "n": 1,
+   "who": "p1",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 1,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 1,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 2,
+   "who": "p1",
+   "cmd": "ROLLBACK",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "INSERT INTO T VALUES (3,4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "ALTER TABLE T ADD COLUMN C INTEGER",
+   "out": "Query OK, 0 rows affected\nRecords: 0  Duplicates: 0  Warnings: 0"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+------+\n| A    | B    | C    |\n+------+------+------+\n|    1 |    2 | NULL |\n|    3 |    4 | NULL |\n+------+------+------+\n2 rows in set"
+  },
+  {
+   "n": 4,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+------+\n| A    | B    | C    |\n+------+------+------+\n|    1 |    2 | NULL |\n|    3 |    4 | NULL |\n+------+------+------+\n2 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "UPDATE T SET B = 3 WHERE A = 1",
+   "out": "Query OK, 1 row affected\nRows matched: 1  Changed: 1  Warnings: 0"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+------+\n| A    | B    | C    |\n+------+------+------+\n|    1 |    3 | NULL |\n|    3 |    4 | NULL |\n+------+------+------+\n2 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+------+\n| A    | B    | C    |\n+------+------+------+\n|    1 |    2 | NULL |\n|    3 |    4 | NULL |\n+------+------+------+\n2 rows in set"
+  },
+  {
+   "n": 6,
+   "who": "p1",
+   "cmd": "NOTE",
+   "out": ">>> PANNE SERVEUR : taskkill /F /IM mysqld.exe\nOpération réussie : le processus \"mysqld.exe\" de PID 5428 a été arrêté.\nOpération réussie : le processus \"mysqld.exe\" de PID 19340 a été arrêté."
+  },
+  {
+   "n": 6,
+   "who": "p1",
+   "cmd": "NOTE",
+   "out": ">>> Redémarrage du serveur MySQL (mysqld) OK"
+  },
+  {
+   "n": 7,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+------+\n| A    | B    | C    |\n+------+------+------+\n|    1 |    2 | NULL |\n|    3 |    4 | NULL |\n+------+------+------+\n2 rows in set"
+  },
+  {
+   "n": 8,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+------+\n| A    | B    | C    |\n+------+------+------+\n|    1 |    2 | NULL |\n|    3 |    4 | NULL |\n+------+------+------+\n2 rows in set"
+  }
+ ],
+ "tab3": [
+  {
+   "n": 1,
+   "who": "p1",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 1,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 1,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 2,
+   "who": "p1",
+   "cmd": "INSERT INTO T VALUES (3,4)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 2,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "INSERT INTO T VALUES (5,6)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n|    5 |    6 |\n+------+------+\n3 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "SET autocommit = 1",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n|    5 |    6 |\n+------+------+\n3 rows in set"
+  },
+  {
+   "n": 4,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n|    5 |    6 |\n+------+------+\n3 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "INSERT INTO T VALUES (7,8)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n|    5 |    6 |\n|    7 |    8 |\n+------+------+\n4 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n|    5 |    6 |\n|    7 |    8 |\n+------+------+\n4 rows in set"
+  },
+  {
+   "n": 6,
+   "who": "p1",
+   "cmd": "ROLLBACK",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 6,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n|    5 |    6 |\n|    7 |    8 |\n+------+------+\n4 rows in set"
+  },
+  {
+   "n": 6,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n|    5 |    6 |\n|    7 |    8 |\n+------+------+\n4 rows in set"
+  },
+  {
+   "n": 7,
+   "who": "p1",
+   "cmd": "INSERT INTO T VALUES (9,10)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 7,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n|    5 |    6 |\n|    7 |    8 |\n|    9 |   10 |\n+------+------+\n5 rows in set"
+  },
+  {
+   "n": 7,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    2 |\n|    3 |    4 |\n|    5 |    6 |\n|    7 |    8 |\n|    9 |   10 |\n+------+------+\n5 rows in set"
+  },
+  {
+   "n": 8,
+   "who": "p1",
+   "cmd": "DELETE FROM T WHERE A = 1",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 8,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    3 |    4 |\n|    5 |    6 |\n|    7 |    8 |\n|    9 |   10 |\n+------+------+\n4 rows in set"
+  },
+  {
+   "n": 8,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    3 |    4 |\n|    5 |    6 |\n|    7 |    8 |\n|    9 |   10 |\n+------+------+\n4 rows in set"
+  },
+  {
+   "n": 9,
+   "who": "p1",
+   "cmd": "NOTE",
+   "out": ">>> PANNE SERVEUR : taskkill /F /IM mysqld.exe\nOpération réussie : le processus \"mysqld.exe\" de PID 19744 a été arrêté.\nOpération réussie : le processus \"mysqld.exe\" de PID 22876 a été arrêté."
+  },
+  {
+   "n": 9,
+   "who": "p1",
+   "cmd": "NOTE",
+   "out": ">>> Redémarrage du serveur MySQL (mysqld) OK"
+  },
+  {
+   "n": 10,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    3 |    4 |\n|    5 |    6 |\n|    7 |    8 |\n|    9 |   10 |\n+------+------+\n4 rows in set"
+  },
+  {
+   "n": 11,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    3 |    4 |\n|    5 |    6 |\n|    7 |    8 |\n|    9 |   10 |\n+------+------+\n4 rows in set"
+  }
+ ],
+ "an1": [
+  {
+   "n": 1,
+   "who": "p1",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 2,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "DELETE FROM T WHERE B=1",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    2 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 3,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    2 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 4,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 4,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    2 |    2 |\n+------+------+\n1 row in set"
+  }
+ ],
+ "an2": [
+  {
+   "n": 1,
+   "who": "p1",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 2,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "DELETE FROM T WHERE B=1",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    2 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 3,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 4,
+   "who": "p2",
+   "cmd": "UPDATE T SET B=B-1",
+   "out": "<<BLOQUÉ>>"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    2 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 4,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 5,
+   "who": "p2",
+   "cmd": "(débloquée)",
+   "out": "Query OK, 1 row affected\nRows matched: 1  Changed: 1  Warnings: 0"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    2 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 5,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    1 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    2 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 6,
+   "who": "p2",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 6,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    2 |    2 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 6,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    2 |    1 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 6,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    2 |    1 |\n+------+------+\n1 row in set"
+  }
+ ],
+ "an3": [
+  {
+   "n": 1,
+   "who": "p1",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 2,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p2",
+   "cmd": "UPDATE T SET B=B-1",
+   "out": "Query OK, 2 rows affected\nRows matched: 2  Changed: 2  Warnings: 0"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    0 |\n|    2 |    1 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "DELETE FROM T WHERE B=1",
+   "out": "<<BLOQUÉ>>"
+  },
+  {
+   "n": 4,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    0 |\n|    2 |    1 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 4,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "p2",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "(débloquée)",
+   "out": "Query OK, 1 row affected"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 5,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    0 |\n|    2 |    1 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    0 |\n|    2 |    1 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 6,
+   "who": "p1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 6,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    0 |\n+------+------+\n1 row in set"
+  },
+  {
+   "n": 6,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    0 |\n|    2 |    1 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 6,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    0 |\n+------+------+\n1 row in set"
+  }
+ ],
+ "an4": [
+  {
+   "n": 1,
+   "who": "p1",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SET autocommit = 0",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 2,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 2,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 2,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "UPDATE T SET A=1 WHERE B=2",
+   "out": "Query OK, 1 row affected\nRows matched: 1  Changed: 1  Warnings: 0"
+  },
+  {
+   "n": 3,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    1 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 3,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 4,
+   "who": "p2",
+   "cmd": "DELETE FROM T WHERE A=1",
+   "out": "<<BLOQUÉ>>"
+  },
+  {
+   "n": 4,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    1 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 4,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    2 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 5,
+   "who": "p2",
+   "cmd": "(débloquée)",
+   "out": "Query OK, 2 rows affected"
+  },
+  {
+   "n": 5,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    1 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 5,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "Empty set"
+  },
+  {
+   "n": 5,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    1 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 6,
+   "who": "p2",
+   "cmd": "COMMIT",
+   "out": "Query OK, 0 rows affected"
+  },
+  {
+   "n": 6,
+   "who": "p1",
+   "cmd": "SELECT * FROM T",
+   "out": "+------+------+\n| A    | B    |\n+------+------+\n|    1 |    1 |\n|    1 |    2 |\n+------+------+\n2 rows in set"
+  },
+  {
+   "n": 6,
+   "who": "p2",
+   "cmd": "SELECT * FROM T",
+   "out": "Empty set"
+  },
+  {
+   "n": 6,
+   "who": "p3",
+   "cmd": "SELECT * FROM T",
+   "out": "Empty set"
+  }
+ ]
+}
